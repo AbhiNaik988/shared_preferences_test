@@ -8,44 +8,59 @@ import '../blocs/sign_in_bloc/sign_in_bloc.dart';
 import '../blocs/sign_in_bloc/sign_in_states.dart';
 
 class LoginScreen extends StatelessWidget {
-  final SignInState state;
-  const LoginScreen({super.key, required this.state});
+  const LoginScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-          body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            expandedHeight: 300,
-            floating: true,
-            actions: const [
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 10,vertical: 5),
-                child: Icon(Icons.menu,size: 30),
+    return BlocBuilder<SignInBloc, SignInState>(
+      builder: (context, state) {
+        return SafeArea(
+          child: Scaffold(
+              body: CustomScrollView(
+            slivers: [
+              SliverAppBar(
+                expandedHeight: 300,
+                floating: true,
+                actions: [
+                  Padding(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    child: IconButton(
+                        onPressed: () {
+                          Navigator.pushNamed(context, "/screen2");
+                        },
+                        icon: const Icon(Icons.menu, size: 30)),
+                  ),
+                ],
+                flexibleSpace: FlexibleSpaceBar(
+                  title: const Text("Sign In"),
+                  background: Image.network(
+                    "https://images.unsplash.com/photo-1678905029643-741e60ef88d5?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHx0b3BpYy1mZWVkfDd8NnNNVmpUTFNrZVF8fGVufDB8fHx8&auto=format&fit=crop&w=500&q=60",
+                    fit: BoxFit.cover,
+                  ),
+                ),
               ),
+              SliverToBoxAdapter(
+                  child: state.isSubmitting
+                      ? Padding(
+                          padding: EdgeInsets.only(
+                              top: MediaQuery.of(context).size.height / 4),
+                          child:
+                              const Center(child: CircularProgressIndicator()),
+                        )
+                      : _loginForm(context, state)),
+              SliverToBoxAdapter(
+                child: state.isSubmitted
+                    ? const Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Icon(Icons.done_all),
+                      )
+                    : null,
+              )
             ],
-            flexibleSpace: FlexibleSpaceBar(
-              title: const Text("Sign In"),
-              background: Image.network(
-                "https://images.unsplash.com/photo-1678905029643-741e60ef88d5?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHx0b3BpYy1mZWVkfDd8NnNNVmpUTFNrZVF8fGVufDB8fHx8&auto=format&fit=crop&w=500&q=60",
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-          SliverToBoxAdapter(child: state.isSubmitting ?  Padding(
-            padding: EdgeInsets.only(top: MediaQuery.of(context).size.height / 4),
-            child: const Center(child: CircularProgressIndicator()),
-          ) : _loginForm(context, state)),
-          SliverToBoxAdapter(
-            child: state.isSubmitted ? const Padding(
-              padding:  EdgeInsets.all(8.0),
-              child: Icon(Icons.done_all),
-            ) : null,
-          )
-        ],
-      )),
+          )),
+        );
+      },
     );
   }
 
