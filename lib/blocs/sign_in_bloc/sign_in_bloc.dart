@@ -44,8 +44,9 @@ class SignInBloc extends Bloc<SignInEvents, SignInState> {
     });
 
     on<FormSubmitting>((event, emit) {
+      emit(state.copyWith(isSubmitting: true,isSubmitted: false));
       _storeInSharedPreference(event.username,event.password);
-      emit(state.copyWith(isSubmitting: true));
+      emit(state.copyWith(isSubmitted: true,isSubmitting: false));
     });
 
     on<FormSubmitted>((event, emit) {

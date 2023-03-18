@@ -15,11 +15,37 @@ class LoginScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        appBar: AppBar(
-          title: const Text("Shared Preferences Test"),
-        ),
-        body: _loginForm(context, state),
-      ),
+          body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            expandedHeight: 300,
+            floating: true,
+            actions: const [
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 10,vertical: 5),
+                child: Icon(Icons.menu,size: 30),
+              ),
+            ],
+            flexibleSpace: FlexibleSpaceBar(
+              title: const Text("Sign In"),
+              background: Image.network(
+                "https://images.unsplash.com/photo-1678905029643-741e60ef88d5?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHx0b3BpYy1mZWVkfDd8NnNNVmpUTFNrZVF8fGVufDB8fHx8&auto=format&fit=crop&w=500&q=60",
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          SliverToBoxAdapter(child: state.isSubmitting ?  Padding(
+            padding: EdgeInsets.only(top: MediaQuery.of(context).size.height / 4),
+            child: const Center(child: CircularProgressIndicator()),
+          ) : _loginForm(context, state)),
+          SliverToBoxAdapter(
+            child: state.isSubmitted ? const Padding(
+              padding:  EdgeInsets.all(8.0),
+              child: Icon(Icons.done_all),
+            ) : null,
+          )
+        ],
+      )),
     );
   }
 
@@ -78,63 +104,59 @@ class LoginScreen extends StatelessWidget {
 
   Widget _passwordFormField(BuildContext context, SignInState state) {
     return FutureBuilder(
-      future: state.passwordIfSaved,
-      builder: (context,snapshot) {
+        future: state.passwordIfSaved,
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return const CircularProgressIndicator();
+          }
 
-        if(!snapshot.hasData){
-          return const CircularProgressIndicator();
-        }
-
-        return TextFormField(
-          initialValue: snapshot.data,
-          onChanged: (value) => BlocProvider.of<SignInBloc>(context)
-              .add(PasswordChanged(password: value)),
-          obscureText: true,
-          decoration: InputDecoration(
-            prefixIcon: Icon(
-              Icons.remove_red_eye_outlined,
-              color: state.isPasswordValid ? Colors.grey : Colors.red,
+          return TextFormField(
+            initialValue: snapshot.data,
+            onChanged: (value) => BlocProvider.of<SignInBloc>(context)
+                .add(PasswordChanged(password: value)),
+            obscureText: true,
+            decoration: InputDecoration(
+              prefixIcon: Icon(
+                Icons.remove_red_eye_outlined,
+                color: state.isPasswordValid ? Colors.grey : Colors.red,
+              ),
+              contentPadding: const EdgeInsets.fromLTRB(35, 20, 20, 20),
+              labelText: "Password",
+              hintText: "Enter password...",
+              errorText: state.isPasswordValid ? null : state.passwordErrorText,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(25),
+              ),
             ),
-            contentPadding: const EdgeInsets.fromLTRB(35, 20, 20, 20),
-            labelText: "Password",
-            hintText: "Enter password...",
-            errorText: state.isPasswordValid ? null : state.passwordErrorText,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(25),
-            ),
-          ),
-        );
-      }
-    );
+          );
+        });
   }
 
   Widget _usernameFormField(BuildContext context, SignInState state) {
     return FutureBuilder<String>(
-      future: state.usernameIfSaved,
-      builder: (context,snapshot) {
+        future: state.usernameIfSaved,
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return const CircularProgressIndicator();
+          }
 
-        if(!snapshot.hasData){
-          return const CircularProgressIndicator();
-        }
-
-        return TextFormField(
-          initialValue: snapshot.data,
-          onChanged: (value) => BlocProvider.of<SignInBloc>(context)
-              .add(UsernameChanged(username: value)),
-          decoration: InputDecoration(
-            prefixIcon: Icon(Icons.supervised_user_circle,
-                color: state.isUsernameValid ? Colors.grey : Colors.red),
-            contentPadding: const EdgeInsets.fromLTRB(35, 20, 20, 20),
-            labelText: "Name",
-            hintText: "Enter name...",
-            errorText: state.isUsernameValid ? null : state.usernameErrorText,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(25),
+          return TextFormField(
+            initialValue: snapshot.data,
+            onChanged: (value) => BlocProvider.of<SignInBloc>(context)
+                .add(UsernameChanged(username: value)),
+            decoration: InputDecoration(
+              prefixIcon: Icon(Icons.supervised_user_circle,
+                  color: state.isUsernameValid ? Colors.grey : Colors.red),
+              contentPadding: const EdgeInsets.fromLTRB(35, 20, 20, 20),
+              labelText: "Name",
+              hintText: "Enter name...",
+              errorText: state.isUsernameValid ? null : state.usernameErrorText,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(25),
+              ),
             ),
-          ),
-        );
-      }
-    );
+          );
+        });
   }
 
   _checkIfFormValid(SignInState state) {
