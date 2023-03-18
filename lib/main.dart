@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences_test/blocs/sign_in_bloc/sign_in_bloc.dart';
 import 'package:shared_preferences_test/screens/login_screen.dart';
 
 void main() {
@@ -15,7 +17,10 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const LoginScreen(),
+      home: BlocProvider(
+        create: (context) => SignInBloc(),
+        child: const LoginScreen(),
+      ),
     );
   }
 }
