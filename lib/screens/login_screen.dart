@@ -13,7 +13,6 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  bool _isChecked = false;
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +41,7 @@ class _LoginScreenState extends State<LoginScreen> {
             _spacer(context),
             _passwordFormField(context, state),
             _spacer(context),
-            _rememberMeField(),
+            _rememberMeField(state),
             _spacer(context),
             _submitButton(state),
           ],
@@ -63,16 +62,14 @@ class _LoginScreenState extends State<LoginScreen> {
         child: const Text("Submit"));
   }
 
-  Row _rememberMeField() {
+  Row _rememberMeField(SignInState state) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
         Checkbox(
-            value: _isChecked,
+            value: state.isChecked,
             onChanged: (value) {
-              setState(() {
-                _isChecked = value!;
-              });
+              BlocProvider.of<SignInBloc>(context).add(RememberMechaned(isChecked: value!));
             }),
         const SizedBox(width: 5),
         const Text("Remember me!")
