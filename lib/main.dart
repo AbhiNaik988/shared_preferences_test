@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences_test/blocs/observer.dart';
 import 'package:shared_preferences_test/blocs/sign_in_bloc/sign_in_bloc.dart';
+import 'package:shared_preferences_test/blocs/sign_in_bloc/sign_in_events.dart';
 import 'package:shared_preferences_test/screens/login_screen.dart';
 
 import 'blocs/sign_in_bloc/sign_in_states.dart';
@@ -23,7 +24,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       home: BlocProvider(
-        create: (context) => SignInBloc(),
+        create: (context) => SignInBloc()..add(LoadUsernamePassword()),
         child: BlocBuilder<SignInBloc, SignInState>(
           builder: (context, state) {
             return LoginScreen(state: state);

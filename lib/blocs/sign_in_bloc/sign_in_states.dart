@@ -1,5 +1,9 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'package:shared_preferences_test/blocs/sign_in_bloc/sign_in_bloc.dart';
+
 class SignInState {
+  final Future<String>? usernameIfSaved;
+  final Future<String>? passwordIfSaved;
   final String username;
   final String password;
   final String usernameErrorText;
@@ -10,6 +14,8 @@ class SignInState {
   final bool isSubmitting;
   final bool isSubmitted;
   SignInState({
+    this.usernameIfSaved,
+    this.passwordIfSaved,
     this.username = "",
     this.password = "",
     this.usernameErrorText = "",
@@ -21,9 +27,10 @@ class SignInState {
     this.isSubmitted = false
   });
 
-  
 
   SignInState copyWith({
+    Future<String>? usernameIfSaved,
+    Future<String>? passwordIfSaved,
     String? username,
     String? password,
     String? usernameErrorText,
@@ -35,6 +42,8 @@ class SignInState {
     bool? isSubmitted,
   }) {
     return SignInState(
+      usernameIfSaved: usernameIfSaved ?? this.usernameIfSaved,
+      passwordIfSaved: passwordIfSaved ?? this.passwordIfSaved,
       username: username ?? this.username,
       password: password ?? this.password,
       usernameErrorText: usernameErrorText ?? this.usernameErrorText,
@@ -49,6 +58,6 @@ class SignInState {
 
   @override
   String toString() {
-    return 'SignInState(username: $username, password: $password, usernameErrorText: $usernameErrorText, passwordErrorText: $passwordErrorText, isChecked: $isChecked, isUsernameValid: $isUsernameValid, isPasswordValid: $isPasswordValid, isSubmitting: $isSubmitting, isSubmitted: $isSubmitted)';
+    return 'SignInState(usernameIfSaved: $usernameIfSaved, passwordIfSaved: $passwordIfSaved, username: $username, password: $password, usernameErrorText: $usernameErrorText, passwordErrorText: $passwordErrorText, isChecked: $isChecked, isUsernameValid: $isUsernameValid, isPasswordValid: $isPasswordValid, isSubmitting: $isSubmitting, isSubmitted: $isSubmitted)';
   }
 }

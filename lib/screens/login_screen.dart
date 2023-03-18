@@ -1,7 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:shared_preferences_test/blocs/sign_in_bloc/sign_in_events.dart';
 
@@ -35,9 +34,9 @@ class LoginScreen extends StatelessWidget {
             _spacer(context),
             _passwordFormField(context, state),
             _spacer(context),
-            _rememberMeField(context,state),
+            _rememberMeField(context, state),
             _spacer(context),
-            _submitButton(context,state),
+            _submitButton(context, state),
           ],
         ),
       ),
@@ -47,21 +46,21 @@ class LoginScreen extends StatelessWidget {
   SizedBox _spacer(BuildContext context) =>
       SizedBox(height: MediaQuery.of(context).size.height * 0.02);
 
-  ElevatedButton _submitButton(BuildContext context,SignInState state) {
+  ElevatedButton _submitButton(BuildContext context, SignInState state) {
     return ElevatedButton(
         onPressed: _checkIfFormValid(state)
             ? () {
                 FocusManager.instance.primaryFocus!.unfocus();
-                BlocProvider.of<SignInBloc>(context).add(FormSubmitting());
                 if (state.isChecked) {
-                  _storeUserNamePassInSP(state.username, state.password);
+                  BlocProvider.of<SignInBloc>(context).add(FormSubmitting(
+                      username: state.username, password: state.password));
                 }
               }
             : null,
         child: const Text("Submit"));
   }
 
-  Row _rememberMeField(BuildContext context,SignInState state) {
+  Row _rememberMeField(BuildContext context, SignInState state) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
@@ -77,44 +76,64 @@ class LoginScreen extends StatelessWidget {
     );
   }
 
-  TextFormField _passwordFormField(BuildContext context, SignInState state) {
-    return TextFormField(
-      initialValue: state.password,
-      onChanged: (value) => BlocProvider.of<SignInBloc>(context)
-          .add(PasswordChanged(password: value)),
-      obscureText: true,
-      decoration: InputDecoration(
-        prefixIcon: Icon(
-          Icons.remove_red_eye_outlined,
-          color: state.isPasswordValid ? Colors.grey : Colors.red,
-        ),
-        contentPadding: const EdgeInsets.fromLTRB(35, 20, 20, 20),
-        labelText: "Password",
-        hintText: "Enter password...",
-        errorText: state.isPasswordValid ? null : state.passwordErrorText,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(25),
-        ),
-      ),
+  Widget _passwordFormField(BuildContext context, SignInState state) {
+    return FutureBuilder(
+      future: state.passwordIfSaved,
+      builder: (context,snapshot) {
+
+        if(!snapshot.hasData){
+          return const CircularProgressIndicator();
+        }
+
+        return TextFormField(
+          initialValue: snapshot.data,
+          onChanged: (value) => BlocProvider.of<SignInBloc>(context)
+              .add(PasswordChanged(password: value)),
+          obscureText: true,
+          decoration: InputDecoration(
+            prefixIcon: Icon(
+              Icons.remove_red_eye_outlined,
+              color: state.isPasswordValid ? Colors.grey : Colors.red,
+            ),
+            contentPadding: const EdgeInsets.fromLTRB(35, 20, 20, 20),
+            labelText: "Password",
+            hintText: "Enter password...",
+            errorText: state.isPasswordValid ? null : state.passwordErrorText,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(25),
+            ),
+          ),
+        );
+      }
     );
   }
 
-  TextFormField _usernameFormField(BuildContext context, SignInState state) {
-    return TextFormField(
-      initialValue: state.username.toString(),
-      onChanged: (value) => BlocProvider.of<SignInBloc>(context)
-          .add(UsernameChanged(username: value)),
-      decoration: InputDecoration(
-        prefixIcon: Icon(Icons.supervised_user_circle,
-            color: state.isUsernameValid ? Colors.grey : Colors.red),
-        contentPadding: const EdgeInsets.fromLTRB(35, 20, 20, 20),
-        labelText: "Name",
-        hintText: "Enter name...",
-        errorText: state.isUsernameValid ? null : state.usernameErrorText,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(25),
-        ),
-      ),
+  Widget _usernameFormField(BuildContext context, SignInState state) {
+    return FutureBuilder<String>(
+      future: state.usernameIfSaved,
+      builder: (context,snapshot) {
+
+        if(!snapshot.hasData){
+          return const CircularProgressIndicator();
+        }
+
+        return TextFormField(
+          initialValue: snapshot.data,
+          onChanged: (value) => BlocProvider.of<SignInBloc>(context)
+              .add(UsernameChanged(username: value)),
+          decoration: InputDecoration(
+            prefixIcon: Icon(Icons.supervised_user_circle,
+                color: state.isUsernameValid ? Colors.grey : Colors.red),
+            contentPadding: const EdgeInsets.fromLTRB(35, 20, 20, 20),
+            labelText: "Name",
+            hintText: "Enter name...",
+            errorText: state.isUsernameValid ? null : state.usernameErrorText,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(25),
+            ),
+          ),
+        );
+      }
     );
   }
 
@@ -124,19 +143,4 @@ class LoginScreen extends StatelessWidget {
         state.usernameErrorText != "" &&
         state.passwordErrorText != "";
   }
-
-  void _storeUserNamePassInSP(String username, String password) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('username', username);
-    await prefs.setString('password', password);
-  }
-}
-
-class UnamePword {
-  String username;
-  String password;
-  UnamePword({
-    required this.username,
-    required this.password,
-  });
 }

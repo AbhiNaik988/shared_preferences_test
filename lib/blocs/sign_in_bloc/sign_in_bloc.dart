@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import 'package:shared_preferences_test/blocs/sign_in_bloc/sign_in_events.dart';
 import 'package:shared_preferences_test/blocs/sign_in_bloc/sign_in_states.dart';
 
@@ -7,7 +8,11 @@ class SignInBloc extends Bloc<SignInEvents, SignInState> {
   SignInBloc() : super(SignInState()) {
 
     on<LoadUsernamePassword>((event, emit) {
-      emit(state.copyWith(username: event.username,password: event.password));
+      Future<UserCredentials> credentials =  _loadUsernamePassword();
+      final username = credentials.then((value) => value.username);
+      final password = credentials.then((value) => value.password);
+
+      emit(state.copyWith(usernameIfSaved: username,passwordIfSaved: password,isUsernameValid: true,isPasswordValid: true,usernameErrorText: "none",passwordErrorText: "none"));
     });
     
     on<UsernameChanged>((event, emit) {
@@ -38,11 +43,8 @@ class SignInBloc extends Bloc<SignInEvents, SignInState> {
       emit(state.copyWith(isChecked: event.isChecked));
     });
 
-    // on<FormValid>((event, emit) {
-    //   emit(state.copyWith(isPasswordValid: true,isUsernameValid: true,isFormValid: true));
-    // });
-
     on<FormSubmitting>((event, emit) {
+      _storeInSharedPreference(event.username,event.password);
       emit(state.copyWith(isSubmitting: true));
     });
 
@@ -50,4 +52,28 @@ class SignInBloc extends Bloc<SignInEvents, SignInState> {
       emit(state.copyWith(isSubmitting: false,isSubmitted: true));
     });
   }
+  
+  void _storeInSharedPreference(String username, String password) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('username', username);
+    await prefs.setString("password", password);
+  }
+
+  Future<UserCredentials> _loadUsernamePassword() async{
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    final username = prefs.get("username");
+    final password = prefs.get("password");
+
+    return UserCredentials(username: username.toString(),password: password.toString());
+  }
+}
+
+class UserCredentials {
+  String username;
+  String password;
+  UserCredentials({
+    required this.username,
+    required this.password,
+  });
 }
