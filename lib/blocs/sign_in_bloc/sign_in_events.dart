@@ -1,6 +1,12 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 abstract class SignInEvents{}
 
+class LoadUsernamePassword extends SignInEvents{
+  final String username;
+  final String password;
+
+  LoadUsernamePassword({required this.username,required this.password});
+}
 class UsernameChanged extends SignInEvents {
   final String username;
   UsernameChanged({
@@ -26,13 +32,4 @@ class RememberMechaned extends SignInEvents {
 //   });
 // }
 class FormSubmitting extends SignInEvents{}
-class FormSubmitted extends SignInEvents {
-  final String username;
-  final String password;
-  final bool isChecked;
-  FormSubmitted({
-    required this.username,
-    required this.password,
-    required this.isChecked,
-  });
-}
+class FormSubmitted extends SignInEvents {}

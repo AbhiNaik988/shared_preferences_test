@@ -1,18 +1,16 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import 'package:shared_preferences_test/blocs/sign_in_bloc/sign_in_events.dart';
 
 import '../blocs/sign_in_bloc/sign_in_bloc.dart';
 import '../blocs/sign_in_bloc/sign_in_states.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
-
-  @override
-  State<LoginScreen> createState() => _LoginScreenState();
-}
-
-class _LoginScreenState extends State<LoginScreen> {
+class LoginScreen extends StatelessWidget {
+  final SignInState state;
+  const LoginScreen({super.key, required this.state});
 
   @override
   Widget build(BuildContext context) {
@@ -21,16 +19,12 @@ class _LoginScreenState extends State<LoginScreen> {
         appBar: AppBar(
           title: const Text("Shared Preferences Test"),
         ),
-        body: BlocBuilder<SignInBloc, SignInState>(
-          builder: (context, state) {
-            return _loginForm(context, state);
-          },
-        ),
+        body: _loginForm(context, state),
       ),
     );
   }
 
-  Padding _loginForm(BuildContext context, SignInState state) {
+  Widget _loginForm(BuildContext context, SignInState state) {
     return Padding(
       padding: const EdgeInsets.all(28.0),
       child: Center(
@@ -41,35 +35,41 @@ class _LoginScreenState extends State<LoginScreen> {
             _spacer(context),
             _passwordFormField(context, state),
             _spacer(context),
-            _rememberMeField(state),
+            _rememberMeField(context,state),
             _spacer(context),
-            _submitButton(state),
+            _submitButton(context,state),
           ],
         ),
       ),
     );
   }
 
-  SizedBox _spacer(BuildContext context) => SizedBox(height: MediaQuery.of(context).size.height * 0.02);
+  SizedBox _spacer(BuildContext context) =>
+      SizedBox(height: MediaQuery.of(context).size.height * 0.02);
 
-  ElevatedButton _submitButton(SignInState state) {
+  ElevatedButton _submitButton(BuildContext context,SignInState state) {
     return ElevatedButton(
         onPressed: _checkIfFormValid(state)
             ? () {
                 FocusManager.instance.primaryFocus!.unfocus();
+                BlocProvider.of<SignInBloc>(context).add(FormSubmitting());
+                if (state.isChecked) {
+                  _storeUserNamePassInSP(state.username, state.password);
+                }
               }
             : null,
         child: const Text("Submit"));
   }
 
-  Row _rememberMeField(SignInState state) {
+  Row _rememberMeField(BuildContext context,SignInState state) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
         Checkbox(
             value: state.isChecked,
             onChanged: (value) {
-              BlocProvider.of<SignInBloc>(context).add(RememberMechaned(isChecked: value!));
+              BlocProvider.of<SignInBloc>(context)
+                  .add(RememberMechaned(isChecked: value!));
             }),
         const SizedBox(width: 5),
         const Text("Remember me!")
@@ -79,6 +79,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   TextFormField _passwordFormField(BuildContext context, SignInState state) {
     return TextFormField(
+      initialValue: state.password,
       onChanged: (value) => BlocProvider.of<SignInBloc>(context)
           .add(PasswordChanged(password: value)),
       obscureText: true,
@@ -100,6 +101,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   TextFormField _usernameFormField(BuildContext context, SignInState state) {
     return TextFormField(
+      initialValue: state.username.toString(),
       onChanged: (value) => BlocProvider.of<SignInBloc>(context)
           .add(UsernameChanged(username: value)),
       decoration: InputDecoration(
@@ -122,4 +124,19 @@ class _LoginScreenState extends State<LoginScreen> {
         state.usernameErrorText != "" &&
         state.passwordErrorText != "";
   }
+
+  void _storeUserNamePassInSP(String username, String password) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('username', username);
+    await prefs.setString('password', password);
+  }
+}
+
+class UnamePword {
+  String username;
+  String password;
+  UnamePword({
+    required this.username,
+    required this.password,
+  });
 }

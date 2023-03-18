@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences_test/blocs/sign_in_bloc/sign_in_events.dart';
 import 'package:shared_preferences_test/blocs/sign_in_bloc/sign_in_states.dart';
@@ -5,6 +6,9 @@ import 'package:shared_preferences_test/blocs/sign_in_bloc/sign_in_states.dart';
 class SignInBloc extends Bloc<SignInEvents, SignInState> {
   SignInBloc() : super(SignInState()) {
 
+    on<LoadUsernamePassword>((event, emit) {
+      emit(state.copyWith(username: event.username,password: event.password));
+    });
     
     on<UsernameChanged>((event, emit) {
       if(event.username.isEmpty){
@@ -14,7 +18,7 @@ class SignInBloc extends Bloc<SignInEvents, SignInState> {
         emit(state.copyWith(usernameErrorText: "Username is too short!",isUsernameValid: false));
       }
       else{
-        emit(state.copyWith(isUsernameValid: true));
+        emit(state.copyWith(username: event.username ,isUsernameValid: true));
       }
     });
 
@@ -26,7 +30,7 @@ class SignInBloc extends Bloc<SignInEvents, SignInState> {
         emit(state.copyWith(passwordErrorText: "Password is too short!",isPasswordValid: false));
       }
       else{
-        emit(state.copyWith(isPasswordValid: true));
+        emit(state.copyWith(password: event.password, isPasswordValid: true));
       }
     });
 

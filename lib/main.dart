@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences_test/blocs/observer.dart';
 import 'package:shared_preferences_test/blocs/sign_in_bloc/sign_in_bloc.dart';
 import 'package:shared_preferences_test/screens/login_screen.dart';
 
+import 'blocs/sign_in_bloc/sign_in_states.dart';
+
 void main() {
+  Bloc.observer = MyGlobalObserver();
   runApp(const MyApp());
 }
 
@@ -20,7 +24,11 @@ class MyApp extends StatelessWidget {
       ),
       home: BlocProvider(
         create: (context) => SignInBloc(),
-        child: const LoginScreen(),
+        child: BlocBuilder<SignInBloc, SignInState>(
+          builder: (context, state) {
+            return LoginScreen(state: state);
+          },
+        ),
       ),
     );
   }
