@@ -6,13 +6,11 @@ class Screen2 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        children: [
-          const Text("Screen 2"),
-          ElevatedButton(onPressed: (){
-            Navigator.pushNamed(context, "/screen3");
-          }, child: const Text("To screen 3")),
-        ],
+      appBar: AppBar(title: const Text("Screen 2"),),
+      body: Center(
+        child: ElevatedButton(onPressed: (){
+          Navigator.pushNamed(context, "/screen3");
+        }, child: const Text("To screen 3")),
       ),
     );
   }
