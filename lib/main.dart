@@ -4,7 +4,6 @@ import 'package:shared_preferences_test/blocs/observer.dart';
 import 'package:shared_preferences_test/blocs/sign_in_bloc/sign_in_bloc.dart';
 import 'package:shared_preferences_test/blocs/sign_in_bloc/sign_in_events.dart';
 import 'package:shared_preferences_test/routes.dart';
-import 'package:shared_preferences_test/screens/login_screen.dart';
 
 void main() {
   Bloc.observer = MyGlobalObserver();
@@ -16,14 +15,17 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Shared Preferences Test',
-      debugShowCheckedModeBanner: false,
-      onGenerateRoute: MyGeneratedRoutes.generatedRoutes,
-      initialRoute: "/signIn",
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
+    return BlocProvider(
+      create: (context) => SignInBloc()..add(LoadUsernamePassword()),
+      child: MaterialApp(
+          title: 'Shared Preferences Test',
+          debugShowCheckedModeBanner: false,
+          onGenerateRoute: MyGeneratedRoutes.generatedRoutes,
+          initialRoute: "/signIn",
+          theme: ThemeData(
+            primarySwatch: Colors.blue,
+          ),
+        ),
     );
   }
 }
