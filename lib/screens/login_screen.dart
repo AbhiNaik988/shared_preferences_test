@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:shared_preferences_test/blocs/sign_in_bloc/sign_in_events.dart';
+import 'package:shared_preferences_test/cubits/theme_cubit/theme_cubit_cubit.dart';
 
 import '../blocs/sign_in_bloc/sign_in_bloc.dart';
 import '../blocs/sign_in_bloc/sign_in_states.dart';
@@ -25,11 +26,22 @@ class LoginScreen extends StatelessWidget {
                   Padding(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                    child: IconButton(
-                        onPressed: () {
-                          Navigator.pushNamed(context, "/screen2");
-                        },
-                        icon: const Icon(Icons.menu, size: 30)),
+                    child: IconButton(onPressed: () {
+                      if (BlocProvider.of<ThemeCubit>(context)
+                          .state
+                          .isDarkEnabled) {
+                        BlocProvider.of<ThemeCubit>(context)
+                            .switchToLightTheme();
+                      } else {
+                        BlocProvider.of<ThemeCubit>(context)
+                            .switchToDarkTheme();
+                      }
+                    }, icon: BlocBuilder<ThemeCubit, ThemeCubitState>(
+                      builder: (context, state) {
+                        return state.isDarkEnabled ? const Icon(Icons.dark_mode_outlined, size: 30) : const Icon(Icons.light_mode_outlined, size: 30);
+                      },
+                    )
+                        ),
                   ),
                 ],
                 flexibleSpace: FlexibleSpaceBar(
@@ -96,6 +108,7 @@ class LoginScreen extends StatelessWidget {
                   BlocProvider.of<SignInBloc>(context).add(FormSubmitting(
                       username: state.username, password: state.password));
                 }
+                Navigator.pushNamed(context, "/screen2");
               }
             : null,
         child: const Text("Submit"));
